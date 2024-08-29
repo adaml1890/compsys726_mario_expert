@@ -15,6 +15,7 @@ import cv2
 from mario_environment import MarioEnvironment
 from pyboy.utils import WindowEvent
 from enum import Enum
+import numpy as np
 
 
 class MarioController(MarioEnvironment):
@@ -68,25 +69,15 @@ class MarioController(MarioEnvironment):
         self.release_button = release_button
 
     def run_action(self, actions) -> None:
-
         """
         Executes one or multiple actions at once.
 
         Args:
             actions: A single action (int) or a list of actions to be performed.
         """
-        # print(actions)
-        # print(self.prevActions)
+
         if isinstance(actions, int):
             actions = [actions]
-        
-
-        # if self.prevActions[0] is (MarioExpert.actions.BUTTON_A.value):
-        #     print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
-        #     self.pyboy.send_input(self.valid_actions[3])
-        #     for _ in range(5): #How long it holds the button for.
-        #         self.pyboy.tick()
-        #     self.pyboy.send_input(self.release_button[3])
 
         # Press each button in the actions list
         for action in actions:
@@ -152,7 +143,7 @@ class MarioExpert:
         FLY = 18
         ARCHER = 14
         KOOPA = 16
-
+        END_PLATFORM = 11
 
 
     def findMario(self, game_area):
@@ -192,19 +183,17 @@ class MarioExpert:
             
             if game_area[i][marioX+3] == MarioExpert.icons.GROUND.value: #GROUND ON TOP
                 actionY = (MarioExpert.actions.BUTTON_A.value,2)
-                return actionY, True
+                return actionY, True     
             else:
                 return 1,False 
     
     def entityRespondX(self, game_area): #override flag for if the Y axis has an input.
         [marioY,marioX] = self.findMario(game_area) #Finds Mario's coords
-        # print(marioX)
         [x,y] = game_area.shape
         if marioX > 14:
             return 2
 
         for i in range(marioX+2,marioX+5): #This loop checks 2 grids ahead of mario on the same y level.
-            # print(game_area[marioY+1][i])
             
             if game_area[marioY+1][i] == MarioExpert.icons.GOOMBA.value: #GOOMBA
                 
@@ -256,7 +245,6 @@ class MarioExpert:
         # Implement your code here to choose the best action
         [action1,self.environment.overRideFlag] = self.entityRespondY(game_area)
         
-        # print(self.environment.prevActions)
         if self.stepCount - self.initialStep <= 10 or self.environment.overRideFlag is True:
             action = action1
         
@@ -269,7 +257,7 @@ class MarioExpert:
         elif self.environment.prevActions != action:
             self.counter = 0
             
-        if self.counter is 10:
+        if self.counter == 5:
             self.counter = 0
             return 3
         
@@ -285,9 +273,6 @@ class MarioExpert:
         self.stepCount+=1
         # Choose an action - button press or other...
         action = self.choose_action()
-        # print((action))
-        # print(self.environment.prevActions)
-        # Run the action on the environment
         self.environment.run_action(action)
 
 
