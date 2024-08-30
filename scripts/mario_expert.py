@@ -8,8 +8,6 @@ Original Mario Manual: https://www.thegameisafootarcade.com/wp-content/uploads/2
 
 import json
 import logging
-import random
-import time
 
 import cv2
 from mario_environment import MarioEnvironment
@@ -161,29 +159,30 @@ class MarioExpert:
         if marioX > 14:
             return 1, False
         for i in range(marioY-3,marioY+1): #This loop checks 3 grids ahead of mario on varying y levels.
-            # print(i)
+          
             if game_area[i][marioX+3] == MarioExpert.icons.GOOMBA.value: #GOOMBA ON TOP
-                # print("Jump")
-                self.initialStep = self.stepCount
-                actionY = (MarioExpert.actions.LEFT_ARROW.value,2)
-                return actionY, True #Action = LEFT.
-            if game_area[i][marioX+2] == MarioExpert.icons.GOOMBA.value: #GOOMBA ON TOP
-                # print("Left")
+                
                 self.initialStep = self.stepCount
                 actionY = MarioExpert.actions.LEFT_ARROW.value
-                return actionY, True #Action = LEFT.
-            if game_area[11][marioX+4] == MarioExpert.icons.FLY.value: #Fly case
-                # print("Jump")
-                actionY = (MarioExpert.actions.BUTTON_A.value,2)
-                return actionY, True       
+                return actionY, True #Action = LEFT ARROW
+            
+            if game_area[i][marioX+2] == MarioExpert.icons.GOOMBA.value: #GOOMBA ON TOP
+                self.initialStep = self.stepCount
+                actionY = MarioExpert.actions.LEFT_ARROW.value
+                return actionY, True #Action = LEFT ARROW.
+            
+            if game_area[11][marioX+4] == MarioExpert.icons.FLY.value: #Fly 
+                actionY = (MarioExpert.actions.BUTTON_A.value,2) #Action = JUMP and RIGHT ARROW.
+                return actionY, True   
+                
             if game_area[15][marioX+2] == MarioExpert.icons.EMPTY.value: #Hole   
-                # print("Jump")     
                 actionY = int(MarioExpert.actions.BUTTON_A.value)
                 return (actionY,2),True 
             
             if game_area[i][marioX+3] == MarioExpert.icons.GROUND.value: #GROUND ON TOP
-                actionY = (MarioExpert.actions.BUTTON_A.value,2)
-                return actionY, True     
+                actionY = (MarioExpert.actions.BUTTON_A.value,2) #Action = JUMP and RIGHT ARROW.
+                return actionY, True  
+               
             else:
                 return 1,False 
     
@@ -196,31 +195,29 @@ class MarioExpert:
         for i in range(marioX+2,marioX+5): #This loop checks 2 grids ahead of mario on the same y level.
             
             if game_area[marioY+1][i] == MarioExpert.icons.GOOMBA.value: #GOOMBA
-                
-                return (MarioExpert.actions.BUTTON_A.value,2) #Action = JUMP.
+                return (MarioExpert.actions.BUTTON_A.value,2) #Action = JUMP and RIGHT ARROW.
+            
             if game_area[marioY][i] == MarioExpert.icons.ARCHER.value: #ARCHER
-                
                 return (MarioExpert.actions.BUTTON_A.value,2)
+            
             if game_area[marioY+1][i] == MarioExpert.icons.FLY.value: #FLY
-                
-                return (MarioExpert.actions.BUTTON_A.value,2)
+                return (MarioExpert.actions.BUTTON_A.value,2) #Action = JUMP and RIGHT ARROW.
+            
             if game_area[marioY][i] == MarioExpert.icons.KOOPA.value: #KOOPATROOPA
-
-                return (MarioExpert.actions.BUTTON_A.value)
+                return (MarioExpert.actions.BUTTON_A.value) #Action = JUMP.
+            
             if game_area[marioY][i] == MarioExpert.icons.PIPE.value: #PIPE
-                
-                return (MarioExpert.actions.BUTTON_A.value,2)
+                return (MarioExpert.actions.BUTTON_A.value,2) #Action = JUMP and RIGHT ARROW.
+            
             if game_area[marioY+1][i] == MarioExpert.icons.GROUND.value: #GROUND
-
-                return (MarioExpert.actions.BUTTON_A.value,2)
+                return (MarioExpert.actions.BUTTON_A.value,2) #Action = JUMP and RIGHT ARROW.
+            
             if game_area[marioY+1][i] == MarioExpert.icons.EMPTY.value: #EMPTY
-                return (MarioExpert.actions.RIGHT_ARROW.value)
+                return (MarioExpert.actions.RIGHT_ARROW.value) #Action = RIGHT ARROW
+            
             else:
                 return 2
-        #Make one that checks under mario for air (jump to not fall off)
-            
-            #Maybe call actions sequence inside here? instead of returning? Therefore you can have combinations.
-            
+   
 
 
 
@@ -238,11 +235,8 @@ class MarioExpert:
 
      
     def choose_action(self):
-        state = self.environment.game_state()
-        frame = self.environment.grab_frame()
         game_area = self.environment.game_area()
         print(game_area)
-        # Implement your code here to choose the best action
         [action1,self.environment.overRideFlag] = self.entityRespondY(game_area)
         
         if self.stepCount - self.initialStep <= 10 or self.environment.overRideFlag is True:
@@ -259,25 +253,19 @@ class MarioExpert:
             
         if self.counter == 5:
             self.counter = 0
-            return 3
+            return MarioExpert.actions.UP_ARROW.value
         
         return action
     
 
     def step(self):
-        """
-        Modify this function as required to implement the Mario Expert agent's logic.
-
-        This is just a very basic example
-        """
         self.stepCount+=1
-        # Choose an action - button press or other...
         action = self.choose_action()
         self.environment.run_action(action)
 
 
 
-    ## FROM HERE ONWARDS DONT
+    ## FROM HERE ONWARDS DONT TOUCH
     def play(self):
         """
         Do NOT edit this method.
